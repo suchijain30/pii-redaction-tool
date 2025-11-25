@@ -114,14 +114,15 @@ Custom blackout rectangle renderer
 
 📁 Folder Structure
 pii-redaction-tool/
-│
+│── app/ 
+|   |---global.css
+|   |---layout.tsx
+|   |---page.tsx
 ├── src/
-│   ├── app/             # Next.js pages & layout
 │   ├── components/      # UI components
 │   ├── lib/             # OCR, PDF processing, redaction logic
 │   ├── types/           # TypeScript types
 │
-├── public/              # Static assets
 ├── package.json
 ├── tailwind.config.js
 ├── tsconfig.json

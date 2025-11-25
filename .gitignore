@@ -61,17 +61,12 @@ tesseract-cache/
 *.traineddata
 
 # ============================================
-# Optional: Uploaded test files (remove if you want them in repo)
-# You upload many PDFs, TXT, DOCX, RTF for testing.
-# Ignoring them keeps repository clean.
+# Optional: Uploaded test files
 # ============================================
-*.pdf
-*.txt
-*.doc
-*.docx
-*.rtf
-*.csv
-*.json
+# Ignore ONLY files inside /uploads or /test-docs (safe!)
+uploads/**
+test-docs/**
+sample-files/**
 
 # ============================================
 # Misc

@@ -9,6 +9,8 @@ import RedactionDisplay from '@/components/RedactionDisplay';
 import Controls from '@/components/Controls';
 import { AlertCircle } from 'lucide-react';
 
+
+
 export default function Home() {
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<RedactionResult | null>(null);
