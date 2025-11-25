@@ -6,24 +6,24 @@ import { detectAddresses } from './detectors/addressDetector';
 
 function removeOverlaps(matches: PIIMatch[]): PIIMatch[] {
   const result: PIIMatch[] = [];
-  
+
   for (const match of matches) {
     const overlaps = result.some(
-      existing =>
+      (existing) =>
         (match.start >= existing.start && match.start < existing.end) ||
         (match.end > existing.start && match.end <= existing.end)
     );
 
     if (!overlaps) result.push(match);
   }
-  
+
   return result;
 }
 
 export function redactText(text: string, options: RedactionOptions): RedactionResult {
   let allMatches: PIIMatch[] = [];
 
-  // Collect matches based on enabled types
+  // Collect based on enabled types
   if (options.enabledTypes.has(PIIType.EMAIL)) {
     allMatches = [...allMatches, ...detectEmails(text)];
   }
@@ -37,43 +37,35 @@ export function redactText(text: string, options: RedactionOptions): RedactionRe
     allMatches = [...allMatches, ...detectAddresses(text)];
   }
 
-  // Sort by position + remove overlaps
+  // Sort + remove overlaps
   allMatches.sort((a, b) => a.start - b.start);
   const uniqueMatches = removeOverlaps(allMatches);
 
-  // Per-type counters for readable labels
+  // Per-type counters
   const counters: Record<PIIType, number> = {
     [PIIType.EMAIL]: 0,
     [PIIType.PHONE]: 0,
     [PIIType.NAME]: 0,
-    [PIIType.ADDRESS]: 0
+    [PIIType.ADDRESS]: 0,
   };
 
-  // Mapping readable tokens
+  // Lowercase label map
   const labelMap: Record<PIIType, string> = {
-    [PIIType.EMAIL]: 'EMAIL',
-    [PIIType.PHONE]: 'PHONE',
-    [PIIType.NAME]: 'NAME',
-    [PIIType.ADDRESS]: 'ADDRESS'
+    [PIIType.EMAIL]: 'email',
+    [PIIType.PHONE]: 'phone',
+    [PIIType.NAME]: 'name',
+    [PIIType.ADDRESS]: 'address',
   };
 
   let redactedText = text;
   let offset = 0;
 
-  // Apply redactions
-  uniqueMatches.forEach(match => {
+  uniqueMatches.forEach((match) => {
     counters[match.type] += 1;
 
-    let replacement = "";
-
-    if (options.redactionStyle === "blackout") {
-      // PDF cannot encode █ — use hashes
-      replacement = "#".repeat(match.value.length);
-    } else {
-      // Use descriptive replacement e.g., [NAME_2]
-      const label = labelMap[match.type];
-      replacement = `[${label}_${counters[match.type]}]`;
-    }
+    // ALWAYS use label style, no blackout
+    const label = labelMap[match.type];
+    const replacement = `[${label}${counters[match.type]}]`;
 
     const adjustedStart = match.start + offset;
     const adjustedEnd = match.end + offset;
@@ -86,7 +78,7 @@ export function redactText(text: string, options: RedactionOptions): RedactionRe
     offset += replacement.length - (match.end - match.start);
   });
 
-  // Summary for UI
+  // Summary
   const summary = uniqueMatches.reduce((acc, match) => {
     acc[match.type] = (acc[match.type] || 0) + 1;
     return acc;
@@ -96,6 +88,6 @@ export function redactText(text: string, options: RedactionOptions): RedactionRe
     originalText: text,
     redactedText,
     matches: uniqueMatches,
-    summary
+    summary,
   };
 }
