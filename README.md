@@ -55,30 +55,6 @@ Automatic fallback to OCR for scanned PDFs
 
 🏗 Architecture
 
-root/
-├── app/
-│   ├── page.tsx
-│   ├── layout.tsx
-│   └── globals.css
-├── src/
-│   ├── components/
-│   │   ├── FileUploader.tsx
-│   │   ├── TextInput.tsx
-│   │   ├── Controls.tsx
-│   │   └── RedactionDisplay.tsx
-│   ├── lib/
-│   │   ├── pdfProcessor.ts          # PDF.js + OCR pipeline
-│   │   ├── redactor.ts              # PII replacement engine
-│   │   ├── generateRedactedPDF.ts   # Downloads final PDF
-│   │   ├── detectors/               # Email/Phone/Name/Address detectors
-│   │   └── multiFileProcessor.ts
-│   ├── types/
-│   │   └── index.ts
-├── public/
-└── package.json
-|── tsconfig.json
-|── next.config.js
-
 ![alt text](image-1.png)
 
 🧠 Why This Approach?
