@@ -1,244 +1,165 @@
 🔒 PII Redaction Tool
+A privacy-first document redaction system for PDFs, scanned documents, and text files — built with Next.js, TypeScript, OCR, and custom PII detection.
+📌 Overview
 
-A Next.js + TypeScript powered application to detect and redact Personally Identifiable Information from documents.
+The PII Redaction Tool is a browser-based application that automatically extracts text from documents, detects sensitive information, and redacts it safely. All processing happens entirely on the client-side, ensuring that no personal data ever leaves the user’s device.
 
-This project extracts text from multiple file formats (PDF, scanned PDF, TXT, DOCX, RTF, CSV, JSON), detects sensitive PII using regex-based detectors, and generates a legally compliant redacted PDF using blackout rectangles (#).
+This tool supports both digital PDFs and scanned PDFs (via OCR), as well as TXT and DOCX files. Users can preview redactions and download a clean, redacted PDF.
 
-Supports OCR (Optical Character Recognition) for scanned PDFs.
-
-Live Demo (once deployed):
-
-https://YOUR-DEPLOYED-URL.vercel.app
+![alt text](image.png)
 
 ✨ Features
+
 🔍 PII Detection
+Detects:
 
-Detects the following PII types:
+Emails
+Phone numbers
+Names
+Addresses
 
-📧 Email Addresses
+🧠 Smart Redaction Engine
+Replaces detected entities with consistent tokens:
 
-📱 Phone Numbers
+[EMAIL_1], [NAME_1], [ADDRESS_2], [PHONE_3]
 
-🧑 Names
 
-📍 Addresses
+📄 Document Support
 
-🛡 Redaction
+Digital PDFs (PDF.js)
+Scanned PDFs (Tesseract OCR)
+TXT files
+DOCX files
 
-Two modes:
+🚀 Client-side Only (100% Private)
+No server, no backend API, no data sent to cloud.
 
-Blackout boxes (#) inside exported PDF
+📥 Multiple File Support
+Upload many documents at once — text gets merged automatically.
 
-Labeled redaction (e.g., [EMAIL], [PHONE]) in UI
+🖨 Download Redacted PDF
+Generates a redacted PDF ready for safe sharing.
 
-📂 Multi-File Upload Support
+⚡ Hybrid Text Extraction Pipeline
 
-Upload multiple documents together:
+Fast parsing for digital PDFs
 
-.pdf (digital + scanned)
+Automatic fallback to OCR for scanned PDFs
 
-.txt
+🖼 Screenshots
+🔧 Application UI
 
-.doc / .docx
+(Replace with your actual screenshots)
 
-.rtf
+📝 Redaction Preview
 
-.csv
+🏗 Architecture
 
-.json
-
-📄 PDF Generation
-
-Export final redacted text into a new PDF
-
-Uses solid black rectangles for real legal redaction
-
-Supports multi-line wrapping, paragraphs, and Unicode-safe text
-
-🧠 OCR Support (Scanned PDFs)
-
-Scanned PDFs are processed via:
-
-pdfjs-dist (page rendering)
-
-Tesseract.js (OCR engine)
-
-Parallel worker threads for speed
-
-DPI optimization & preprocessing for accuracy
-
-⚡ Performance Optimizations
-
-Parallel OCR using 4 workers
-
-Text-based PDF detection (skip OCR when possible)
-
-Reduced DPI for faster processing
-
-Preprocessing: grayscale + contrast boost
-
-🎨 Modern UI
-
-Built with Next.js App Router
-
-TailwindCSS styling
-
-Fully responsive interface
-
-🧪 Tech Stack
-Frontend
-
-Next.js 14+ (App Router)
-
-React 18
-
-TypeScript
-
-Tailwind CSS
-
-Document Processing
-
-pdfjs-dist → Extract text from digital PDFs
-
-Tesseract.js → OCR for scanned PDFs
-
-Mammoth.js → Extract text from .docx files
-
-Custom extractors → For CSV, TXT, JSON, RTF
-
-Redaction & PDF Generation
-
-pdf-lib → Create new redacted PDF
-
-Custom blackout rectangle renderer
-
-📁 Folder Structure
-pii-redaction-tool/
-│── app/ 
-|   |---global.css
-|   |---layout.tsx
-|   |---page.tsx
+root/
+├── app/
+│   ├── page.tsx
+│   ├── layout.tsx
+│   └── globals.css
 ├── src/
-│   ├── components/      # UI components
-│   ├── lib/             # OCR, PDF processing, redaction logic
-│   ├── types/           # TypeScript types
-│
-├── package.json
-├── tailwind.config.js
-├── tsconfig.json
-├── next.config.js
-└── README.md
+│   ├── components/
+│   │   ├── FileUploader.tsx
+│   │   ├── TextInput.tsx
+│   │   ├── Controls.tsx
+│   │   └── RedactionDisplay.tsx
+│   ├── lib/
+│   │   ├── pdfProcessor.ts          # PDF.js + OCR pipeline
+│   │   ├── redactor.ts              # PII replacement engine
+│   │   ├── generateRedactedPDF.ts   # Downloads final PDF
+│   │   ├── detectors/               # Email/Phone/Name/Address detectors
+│   │   └── multiFileProcessor.ts
+│   ├── types/
+│   │   └── index.ts
+├── public/
+└── package.json
+|── tsconfig.json
+|── next.config.js
 
-🚀 Getting Started (Local Development)
-1. Clone the repository
-git clone https://github.com/suchijain30/pii-redaction-tool.git
+![alt text](image-1.png)
+
+🧠 Why This Approach?
+1️⃣ 100% Privacy by Design
+
+Since PII is sensitive, all extraction and redaction is performed locally in the browser.
+No backend = no data leaks.
+
+2️⃣ Works for All Types of PDFs
+
+PDF.js extracts embedded text quickly
+
+Tesseract.js OCR handles scanned or image-based PDFs
+
+This hybrid pipeline ensures reliability.
+
+3️⃣ Modular PII Detection
+
+Each PII category has its own detector module
+→ Easy to extend and maintain.
+
+4️⃣ Token-Based Redaction
+
+Instead of black bars (which can fail during PDF generation),
+redactions use safe text tokens that cannot be recovered.
+
+⚠️ Assumptions & Limitations
+
+OCR (for scanned PDFs) may introduce minor text inaccuracies.
+
+Name detection is regex-based, not ML-based → may miss rare name formats.
+
+Processing time increases for large PDFs (20+ pages with OCR).
+
+PDF export cannot embed heavy Unicode (█), so tokens are used instead.
+
+Browser performance varies by device.
+
+🔧 Trade-offs
+
+| Decision                  | Benefit                        | Trade-off                       |
+| ------------------------- | ------------------------------ | ------------------------------- |
+| Browser-only execution    | Maximum privacy                | OCR is slower than cloud APIs   |
+| Regex-based PII detection | Fast, simple, explainable      | Less accurate than ML           |
+| Token redaction           | Unrecoverable, safe PDF output | No visual blackout in final PDF |
+| Hybrid OCR pipeline       | Works for all PDFs             | Complex implementation          |
+
+
+🧪 ML-based PII detection (names & addresses via ONNX models)
+
+⚙️ Parallel OCR (5–6 workers) for massive performance boost
+
+📊 Progress UI (“Processing page 5 of 23…”)
+
+🧹 Text cleanup to fix OCR artifacts
+
+🗃 Support for Aadhaar, PAN, SSN, Passport, etc.
+
+📦 Export redacted DOCX & TXT formats
+
+📄 Draw black-redaction rectangles directly on PDF canvas
+
+🛠 Installation
+git clone https://github.com/suchijain30/pii-redaction-tool
 cd pii-redaction-tool
-
-2. Install dependencies
 npm install
-
-3. Run development server
 npm run dev
 
 
-Open → http://localhost:3000
+Open in browser:
+👉 http://localhost:3000
 
-📦 Build for Production
-npm run build
-npm start
+🌐 Deployment
 
-🌐 Deployment (Vercel Recommended)
+The project is deployed via Vercel using Next.js App Router.
+Easily scalable & serverless by default.
 
-Deploy in one click:
+https://pii-redaction-tool-git-main-suchijain30s-projects.vercel.app
 
-Go to https://vercel.com
-
-Import your repository
-
-Click Deploy
-
-Vercel automatically detects:
-
-Next.js
-
-Tailwind
-
-Typescript
-
-No configuration needed.
-
-🧩 How OCR Works
-Step 1 — Detect if PDF has digital text
-extractDigitalPDFText()
-
-
-If text exists → return directly (instant, no OCR)
-
-Step 2 — Otherwise run OCR
-
-Render each page via pdf.js
-
-Use Tesseract worker threads
-
-Preprocess image
-
-Extract text
-
-Combine all pages
-
-Step 3 — Send extracted text into redaction pipeline
-🔏 How Redaction Works
-
-PII Detectors:
-
-Email → Regex
-
-Phone → Regex
-
-Name → NLP-like patterns
-
-Address → Regex
-
-Redaction Output:
-✔ UI → Labeled or Blackout
-✔ PDF → Solid black rectangles drawn using pdf-lib
-
-📥 Multi-File Processing Flow
-
-Select multiple files
-
-Extract each file’s text
-
-Merge all text with headers:
-
-===== file1.pdf =====
-extracted text...
-
-
-Run PII detection
-
-Show redacted results
-
-Export to PDF
-
-📷 Screenshots (Optional)
-Include your app screenshots here like:
-![UI Preview](public/screenshot.png)
-
-🧑‍💻 Author
+👩‍💻 Author
 
 Suchi Jain
-B.Tech CSE
-GitHub: https://github.com/suchijain30
-
-📜 License
-
-This project is open-source and available under the MIT License.
-
-If you want, I can also:
-
-👉 Add a logo
-👉 Add badges (Build passing, License, Stars, etc.)
-👉 Add a GIF demo
-👉 Add a project tagline
-👉 Improve the UI screenshots
+Software Engineer & Automation Specialist
+Passionate about document intelligence, privacy, and scalable automation.
