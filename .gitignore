@@ -1,20 +1,56 @@
+# ================================
+# Node modules
+# ================================
 node_modules/
+
+# ================================
+# Next.js build output
+# ================================
 .next/
+out/
 dist/
 build/
-out/
 
-.env*
-*.tsbuildinfo
+# Vercel local folder
+.vercel/
 
-# keep this
-tesseract-cache/
+# ================================
+# Environment variables
+# ================================
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
 
-.vscode/
-.idea/
-
+# ================================
+# Logs
+# ================================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 logs/
 *.log
 
+# ================================
+# TypeScript build info
+# ================================
+*.tsbuildinfo
+
+# ================================
+# OS / Editor files
+# ================================
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ================================
+# Tesseract / OCR temp files
+# ================================
+tesseract-cache/
+*.traineddata
+
