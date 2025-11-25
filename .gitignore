@@ -1,76 +1,20 @@
-# ============================================
-# Node Modules
-# ============================================
 node_modules/
-
-# ============================================
-# Next.js Build Output
-# ============================================
 .next/
-out/
 dist/
 build/
+out/
 
-# Vercel / Netlify / Deployment folders
-.vercel/
-.netlify/
-temp/
-
-# ============================================
-# Environment Variables
-# ============================================
-.env
-.env.local
-.env.development
-.env.production
-.env.*.local
-
-# ============================================
-# TypeScript
-# ============================================
+.env*
 *.tsbuildinfo
 
-# ============================================
-# Logs
-# ============================================
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# keep this
+tesseract-cache/
+
+.vscode/
+.idea/
+
 logs/
 *.log
 
-# ============================================
-# OS-generated files
-# ============================================
 .DS_Store
 Thumbs.db
-
-# ============================================
-# Editor / IDE folders
-# ============================================
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# ============================================
-# OCR / PDF processing temp files
-# ============================================
-tesseract-cache/
-*.traineddata
-
-# ============================================
-# Optional: Uploaded test files
-# ============================================
-# Ignore ONLY files inside /uploads or /test-docs (safe!)
-uploads/**
-test-docs/**
-sample-files/**
-
-# ============================================
-# Misc
-# ============================================
-*.bak
-*.tmp
-.cache/
