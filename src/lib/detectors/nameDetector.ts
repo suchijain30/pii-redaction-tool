@@ -1,30 +1,33 @@
-import { PIIMatch, PIIType } from '@/types';
+import { PIIMatch, PIIType } from "@/types";
+
+const STOPWORDS = new Set([
+  "Street","St","Road","Avenue","Email","Phone","Document","Record",
+  "Location","Return","Date","Publisher","Department","Employee",
+  "Manager","Notes","Notes","Branch"
+]);
 
 export function detectNames(text: string): PIIMatch[] {
-  const nameRegex = /\b[A-Z][a-z]+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\b/g;
   const matches: PIIMatch[] = [];
-  
-  const commonWords = new Set([
-    'The', 'And', 'For', 'But', 'Not', 'With', 'From', 'This', 'That',
-    'Have', 'Has', 'Had', 'Was', 'Were', 'Been', 'Being', 'Are', 'Can',
-    'Could', 'Should', 'Would', 'May', 'Might', 'Must', 'Will', 'Shall'
-  ]);
-  
+
+  const NAME_PATTERN = /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,3})\b/g;
+
   let match;
-  while ((match = nameRegex.exec(text)) !== null) {
-    const name = match[0];
-    const firstName = name.split(' ')[0];
-    
-    if (!commonWords.has(firstName)) {
-      matches.push({
-        type: PIIType.NAME,
-        value: name,
-        start: match.index,
-        end: match.index + name.length,
-        confidence: 0.75
-      });
-    }
+
+  while ((match = NAME_PATTERN.exec(text)) !== null) {
+    const phrase = match[1];
+
+    // Avoid false positives
+    if (STOPWORDS.has(phrase.split(" ")[0])) continue;
+    if (phrase.length < 3) continue;
+
+    matches.push({
+      type: PIIType.NAME,
+      value: phrase,
+      start: match.index,
+      end: match.index + phrase.length,
+      confidence: 0.70,
+    });
   }
-  
+
   return matches;
 }
