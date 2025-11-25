@@ -17,7 +17,10 @@ export async function extractDigitalPDFText(file: File): Promise<string[]> {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const textContent = await page.getTextContent();
-    const text = textContent.items.map((item: any) => item.str).join(" ").trim();
+    const text = textContent.items
+      .map((item: any) => item.str)
+      .join(" ")
+      .trim();
     pages.push(text);
   }
 
@@ -41,10 +44,10 @@ export async function extractScannedPDFText(file: File): Promise<string[]> {
   const buffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
 
-  const numWorkers = 4; // PARALLEL SPEED BOOST
+  const numWorkers = 4;
   const workers = await Promise.all(
     Array.from({ length: numWorkers }).map(() =>
-      createWorker("eng", 1) // fast mode
+      createWorker("eng") // Remove fast mode - use default for better accuracy
     )
   );
 
@@ -55,18 +58,33 @@ export async function extractScannedPDFText(file: File): Promise<string[]> {
       (async () => {
         const page = await pdf.getPage(pageNo);
 
-        // LOWER DPI  → HUGE SPEED BOOST
-        const viewport = page.getViewport({ scale: 1 });
+        // INCREASE DPI for better OCR accuracy (scale 2.0-3.0 recommended)
+        const viewport = page.getViewport({ scale: 2.5 });
 
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d")!;
         canvas.width = viewport.width;
         canvas.height = viewport.height;
 
-        // Preprocessing: grayscale + high contrast (faster OCR)
-        ctx.filter = "grayscale(100%) contrast(180%) brightness(110%)";
-
+        // Better preprocessing for OCR accuracy
+        // Remove excessive filters that can hurt accuracy
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
         await page.render({ canvasContext: ctx, viewport }).promise;
+
+        // Optional: Apply subtle preprocessing AFTER rendering
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        
+        // Simple binarization for better OCR
+        for (let i = 0; i < data.length; i += 4) {
+          const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+          const value = avg > 128 ? 255 : 0;
+          data[i] = data[i + 1] = data[i + 2] = value;
+        }
+        
+        ctx.putImageData(imageData, 0, 0);
 
         // Assign worker by round-robin
         const worker = workers[pageNo % numWorkers];
@@ -90,8 +108,10 @@ export async function extractTextFromPDF(file: File): Promise<string> {
   // Step A — Try digital text first (VERY FAST)
   const digitalPages = await extractDigitalPDFText(file);
 
-  // If PDF has digital text, return immediately
-  const hasDigitalText = digitalPages.some((p) => p.length > 10);
+  // Check if meaningful digital text exists (threshold: 50 chars per page avg)
+  const totalChars = digitalPages.join("").length;
+  const hasDigitalText = totalChars > digitalPages.length * 50;
+  
   if (hasDigitalText) {
     return digitalPages.join("\n\n");
   }
